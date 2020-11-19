@@ -37,6 +37,11 @@ pipeline {
       defaultValue: 'master',
       description: 'Deafult Git branch'
     )
+    string(
+      name: 'GIT_CREDENTIAL_ID',
+      defaultValue: '',
+      description: 'Deafult Git credential'
+    )
   } // parameters
 
   stages {
@@ -73,7 +78,6 @@ pipeline {
     stage('Build on master'){
       agent { label "master" }
       environment {
-        VERSION = gitgetCommitHash()
         DOCKER_BUILD_TAG = "latest"
         PROJECT_Name = "my-first-java-code"
         GIT_CREDENTIAL_ID = ""
