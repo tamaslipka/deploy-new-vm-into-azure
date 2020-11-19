@@ -21,6 +21,10 @@ def String stageTestMasterError
 
 pipeline {
   agent none
+  tools {
+    git 'Default'
+    maven 'Maven'
+  }
   parameters {
     choice(
       choices: ['build','build_and_test','deploy'],
@@ -80,22 +84,23 @@ pipeline {
       environment {
         DOCKER_BUILD_TAG = "latest"
         PROJECT_Name = "my-first-java-code"
-        GIT_CREDENTIAL_ID = ""
       }
       stages {
         stage ('Git checkout') {
           steps {
             checkout scm
+            /*
             dir('simple-java-maven-app') {
               cloneComponent(SIMPLE_JAVA_MAVEN_APP, OTHER_SERVICE_GIT_BRANCH, GIT_CREDENTIAL_ID)
              }
+             */
           } // steps
         } // stage checkout
         stage('Build Java App') {
           steps {
             dir('simple-java-maven-app') {
               sh """
-                mvn -B -DskipTests clean package
+                #mvn -B -DskipTests clean package
               """
             }
           }
@@ -108,6 +113,10 @@ pipeline {
       }
           steps {
             script {
+              sh """
+                  az login
+                """
+              /*
               if ( env.StackExistsSatus  ==~ /CREATE_COMPLETE|UPDATE_COMPLETE/ ) {
                 sh """
                   echo "--=#####   Placeholder to completed   #####=--"
@@ -117,6 +126,7 @@ pipeline {
                   echo "--=#####   Placeholder to create   #####=--"
                 """
               }
+            */
             }
           } // steps
     } // stage Deploy VM
@@ -128,7 +138,7 @@ pipeline {
           script {
               sh """
                 echo "--=#####   Waiting for VM   #####=--"
-                curl -s -S "http://$Project_DNS_Name:$CONFIG_SERVER_Port$CO_SE_TGHealthCheckPath" > /dev/null
+                curl -s -S "http://google.com" > /dev/null
               """
           }
         } // steps
