@@ -37,6 +37,11 @@ pipeline {
       description: 'Name of the target AWS environment'
     )
     string(
+      name: 'NEW_VM_NAME',
+      defaultValue: '',
+      description: 'Deafult name of the new VM'
+    )
+    string(
       name: 'OTHER_SERVICE_GIT_BRANCH',
       defaultValue: 'master',
       description: 'Deafult Git branch'
@@ -101,8 +106,8 @@ pipeline {
             script {
               sh """
                   az group create --name myResourceGroupfordemo --location eastus
-                  az vm create --resource-group myResourceGroupfordemo --name myVMfordemo --image UbuntuLTS --admin-username azureuser --generate-ssh-keys
-                  az vm open-port --port 80 --resource-group myResourceGroupfordemo --name myVMfordemo
+                  az vm create --resource-group myResourceGroupfordemo --name $NEW_VM_NAME --image UbuntuLTS --admin-username azureuser --generate-ssh-keys
+                  az vm open-port --port 80 --resource-group myResourceGroupfordemo --name $NEW_VM_NAME
                 """
             } // script
           } // steps
@@ -115,13 +120,25 @@ pipeline {
           script {
               sh """
                 echo "--=#####   The new VM public IP is:   #####=--"
-                az vm show -d -g myResourceGroupfordemo -n myVMfordemo --query publicIps -o tsv
+                az vm show -d -g myResourceGroupfordemo -n $NEW_VM_NAME --query publicIps -o tsv
               """
           }
         } // steps
       } // stage Run tests on VM
   } // Stages
-
+      stage('Install Nginx on VM') {
+        when {
+            expression { params.BUILD_Type == 'deploy' }
+          }
+        steps {
+          script {
+              sh """
+                echo "--=#####   Install Nginx on new VM   #####=--"
+                az vm run-command invoke -g myResourceGroupfordemo -n myVMfordemo --command-id RunShellScript --scripts "sudo apt-get -y update && sudo apt-get install -y nginx"
+              """
+          }
+        } // steps
+      } // stage Install Nginx on VM
   post {
     failure {
       node('master') {
