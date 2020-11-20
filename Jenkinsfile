@@ -20,7 +20,7 @@ def String stageTestMasterError
 
 
 pipeline {
-  agent none
+  agent { label "master" }
   tools {
     git 'Default'
     maven 'Maven'
@@ -89,22 +89,8 @@ pipeline {
         stage ('Git checkout') {
           steps {
             checkout scm
-            /*
-            dir('simple-java-maven-app') {
-              cloneComponent(SIMPLE_JAVA_MAVEN_APP, OTHER_SERVICE_GIT_BRANCH, GIT_CREDENTIAL_ID)
-             }
-             */
           } // steps
         } // stage checkout
-        stage('Build Java App') {
-          steps {
-            dir('simple-java-maven-app') {
-              sh """
-                #mvn -B -DskipTests clean package
-              """
-            }
-          }
-        } //stage('Build Java App')
       } // stages
     } // stage Build on master
     stage('Deploy VM'){
@@ -114,20 +100,11 @@ pipeline {
           steps {
             script {
               sh """
-                  az login
+                  az group create --name myResourceGroupfordemo --location eastus
+                  az vm create --resource-group myResourceGroupfordemo --name myVMfordemo --image UbuntuLTS --admin-username azureuser --generate-ssh-keys
+                  az vm open-port --port 80 --resource-group myResourceGroupfordemo --name myVMfordemo
                 """
-              /*
-              if ( env.StackExistsSatus  ==~ /CREATE_COMPLETE|UPDATE_COMPLETE/ ) {
-                sh """
-                  echo "--=#####   Placeholder to completed   #####=--"
-                """
-              } else {
-                sh """
-                  echo "--=#####   Placeholder to create   #####=--"
-                """
-              }
-            */
-            }
+            } // script
           } // steps
     } // stage Deploy VM
       stage('Run tests on VM') {
@@ -137,8 +114,8 @@ pipeline {
         steps {
           script {
               sh """
-                echo "--=#####   Waiting for VM   #####=--"
-                curl -s -S "http://google.com" > /dev/null
+                echo "--=#####   The new VM public IP is:   #####=--"
+                az vm show -d -g myResourceGroupfordemo -n myVMfordemo --query publicIps -o tsv
               """
           }
         } // steps
