@@ -125,7 +125,6 @@ pipeline {
           }
         } // steps
       } // stage Run tests on VM
-  } // Stages
       stage('Install Nginx on VM') {
         when {
             expression { params.BUILD_Type == 'deploy' }
@@ -141,6 +140,7 @@ pipeline {
           }
         } // steps
       } // stage Install Nginx on VM
+  } // Stages
   post {
     failure {
       node('master') {
