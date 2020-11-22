@@ -134,7 +134,7 @@ pipeline {
           script {
               sh """
                 echo "--=#####   Install Nginx on new VM   #####=--"
-                az vm run-command invoke -g myResourceGroupfordemo -n myVMfordemo --command-id RunShellScript --scripts "sudo apt-get -y update && sudo apt-get install -y nginx"
+                az vm run-command invoke -g myResourceGroupfordemo -n $NEW_VM_NAME --command-id RunShellScript --scripts "sudo apt-get -y update && sudo apt-get install -y nginx"
               """
           }
         } // steps
