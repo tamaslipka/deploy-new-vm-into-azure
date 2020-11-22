@@ -105,9 +105,9 @@ pipeline {
           steps {
             script {
               sh """
-                  az group create --name myResourceGroupfordemo --location eastus
-                  az vm create --resource-group myResourceGroupfordemo --name $NEW_VM_NAME --image UbuntuLTS --admin-username azureuser --generate-ssh-keys
-                  az vm open-port --port 80 --resource-group myResourceGroupfordemo --name $NEW_VM_NAME
+                  az group create --name $NEW_VM_NAME-ResourceGroup --location eastus
+                  az vm create --resource-group $NEW_VM_NAME-ResourceGroup --name $NEW_VM_NAME --image UbuntuLTS --admin-username azureuser --generate-ssh-keys
+                  az vm open-port --port 80 --resource-group $NEW_VM_NAME-ResourceGroup --name $NEW_VM_NAME
                 """
             } // script
           } // steps
@@ -120,7 +120,7 @@ pipeline {
           script {
               sh """
                 echo "--=#####   The new VM public IP is:   #####=--"
-                az vm show -d -g myResourceGroupfordemo -n $NEW_VM_NAME --query publicIps -o tsv
+                az vm show -d -g $NEW_VM_NAME-ResourceGroup -n $NEW_VM_NAME --query publicIps -o tsv
               """
           }
         } // steps
@@ -133,8 +133,7 @@ pipeline {
           script {
               sh """
                 echo "--=#####   Install Nginx on new VM is in progress  #####=--"
-                Sleep 300
-                az vm run-command invoke -g myResourceGroupfordemo -n $NEW_VM_NAME --command-id RunShellScript --scripts "sudo apt-get -y update && sudo apt-get install -y nginx"
+                az vm run-command invoke -g $NEW_VM_NAME-ResourceGroup -n $NEW_VM_NAME --command-id RunShellScript --scripts "sudo apt-get -y update && sudo apt-get install -y nginx"
                 echo "--=#####   Install Nginx on new VM is done  #####=--"
               """
           }
