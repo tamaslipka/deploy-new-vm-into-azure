@@ -133,8 +133,10 @@ pipeline {
         steps {
           script {
               sh """
-                echo "--=#####   Install Nginx on new VM   #####=--"
+                echo "--=#####   Install Nginx on new VM is in progress  #####=--"
+                Sleep 300
                 az vm run-command invoke -g myResourceGroupfordemo -n $NEW_VM_NAME --command-id RunShellScript --scripts "sudo apt-get -y update && sudo apt-get install -y nginx"
+                echo "--=#####   Install Nginx on new VM is done  #####=--"
               """
           }
         } // steps
