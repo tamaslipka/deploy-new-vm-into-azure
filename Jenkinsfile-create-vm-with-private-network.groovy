@@ -83,7 +83,8 @@ pipeline {
             script {
               sh """
                   echo "--=#####   Install new VM is in progress  #####=--"
-                  . create-private-vm.sh
+                  chmod +x create-private-vm.sh
+                  ./create-private-vm.sh
                 """
             } // script
           } // steps
